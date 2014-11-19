@@ -20,6 +20,31 @@ const int nbFunc = 1;
 // the variable itself is declared in dllmain.cpp.
 extern HINSTANCE currentInstance;
 
+class EditRecordTimer
+{
+private:
+	~EditRecordTimer(){}
+	static FILETIME lastUpdatedTimeStamp; 
+	static const long long SPAN = 5 * 60 * 1000; // 5 Minute interval
+public:
+	static bool HasEnoughTimeElapsedToRecordEdit()
+	{
+		FILETIME thisInstant;
+		GetSystemTimeAsFileTime(&thisInstant);
+		// Somewhere in SO there was this comment that FILETIME is laid out in 
+		// memory as a long long and reinterpreting it as long long.
+		long long delta = *(reinterpret_cast<long long*>(&thisInstant)) - 
+							*(reinterpret_cast<long long*>(&lastUpdatedTimeStamp));
+		return (delta > SPAN);
+	}
+
+	static void UpdateTimeStampToBringToCurrent()
+	{
+		GetSystemTimeAsFileTime(&lastUpdatedTimeStamp);
+	}
+};
+
+
 // Notepad++ relavent data. Both these datastructures are declared in the file
 // WakaTimeNPPPlugin.cpp.
 extern FuncItem funcItem[nbFunc];

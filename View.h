@@ -5,6 +5,7 @@
 #include <CommCtrl.h>
 #include <tchar.h>
 #include "resource.h"
+#include "INIReader.h"
 
 #pragma comment(linker, \
   "\"/manifestdependency:type='Win32' "\
@@ -23,6 +24,10 @@ INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_INITDIALOG:
 	{
 		HWND hEdit = GetDlgItem(hDlg, IDC_WAKATIME_KEY);
+		// Read the wakatime.cfg file under users home directory if it exists.
+		// And show the current API Key when this dialog comes up.
+		// SetDlgItemTextW(hDlg, IDC_WAKATIME_KEY, 
+		//			reader.GetKeyValuePairsUnderASection(L"settings")[L"api_key"].c_str());
 		SetFocus(hEdit);
 		return FALSE;
 	}
