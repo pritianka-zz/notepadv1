@@ -9,6 +9,7 @@
 static FILETIME local;
 FILETIME EditRecordTimer::lastUpdatedTimeStamp = (GetSystemTimeAsFileTime(&local), local);
 ManageWakaTimeConfigFile gConfigFileManager;
+static const std::wstring pythoncmd = L"python.exe";
 
 bool ManageWakaTimeConfigFile::ReadWakaTimeConfigFile()
 {
@@ -55,4 +56,26 @@ void ManageWakaTimeConfigFile::CreateWakaTimeConfigFile(std::wstring key)
 	INIReader reader(m_FileName);
 	reader.CreateSectionAndAddKeyValue(SECTION, API_KEY, key);
 	reader.WriteIniFile(m_FileName);
+}
+
+std::wstring CommonUtility::GetCurrentNPPDocument()
+{
+	wchar_t fileName[MAX_PATH];
+	SendMessage(nppData._nppHandle, NPPM_GETFULLCURRENTPATH, MAX_PATH, (LPARAM)fileName);
+	return std::wstring(fileName);
+}
+
+void CommonUtility::OnCurrentNPPDocumentSaved()
+{
+	// Tell the WakaTime backend that a document has been saved in Notepad++ .
+}
+
+void CommonUtility::OnNewNPPDocumentCreated()
+{
+	// Tell the WakaTime backend that a document has been created in Notepad++.
+}
+
+void CommonUtility::OnNPPDocumentModified()
+{
+	// // Tell the WakaTime backend that a document has been modified in Notepad++.
 }

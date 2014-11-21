@@ -18,12 +18,39 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 	{
 	case NPPN_SHUTDOWN:
 	{
+		CommonUtility::OnCurrentNPPDocumentSaved();
 		WakaTimeNPPPlugin::commandMenuCleanUp();
-	}
 		break;
-
+	}
+	case NPPN_FILEBEFORECLOSE:
+	case NPPN_FILEBEFORESAVE:
+	{
+		CommonUtility::OnCurrentNPPDocumentSaved();
+		break;
+	}
+	case NPPN_BUFFERACTIVATED:
+	{
+		CommonUtility::OnNewNPPDocumentCreated();
+		break;
+	}
+	case NPPN_DOCORDERCHANGED:
+	case NPPN_READONLYCHANGED:
+	{
+		CommonUtility::OnNPPDocumentModified();
+		break;
+	}
 	default:
+	{
+		if (notifyCode->modificationType == SCN_MODIFIED && 
+			EditRecordTimer::HasEnoughTimeElapsedToRecordEdit() &&
+			(notifyCode->linesAdded > 0 || notifyCode->updated == SCN_UPDATEUI))
+		{
+			CommonUtility::OnNPPDocumentModified();
+			EditRecordTimer::UpdateTimeStampToBringToCurrent();
+		}
+
 		return;
+	}
 	}
 }
 

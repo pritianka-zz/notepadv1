@@ -24,12 +24,17 @@ const int nbFunc = 1;
 // the variable itself is declared in dllmain.cpp.
 extern HINSTANCE currentInstance;
 
+// Notepad++ relavent data. Both these datastructures are declared in the file
+// WakaTimeNPPPlugin.cpp.
+extern FuncItem funcItem[nbFunc];
+extern NppData nppData;
+
 class EditRecordTimer
 {
 private:
 	~EditRecordTimer(){}
 	static FILETIME lastUpdatedTimeStamp; 
-	static const long long SPAN = 5 * 60 * 1000; // 5 Minute interval
+	static const long long SPAN = 2 * 60 * 1000; // 2 Minute interval
 public:
 	static bool HasEnoughTimeElapsedToRecordEdit()
 	{
@@ -61,12 +66,19 @@ public:
 	void CreateWakaTimeConfigFile(std::wstring key);
 };
 
+class CommonUtility
+{
+private:
+	static std::wstring sWakaTimeCmdPath;
+	static const std::wstring pythoncmd;
+public:
+	static std::wstring GetCurrentNPPDocument();
+	static void OnCurrentNPPDocumentSaved();
+	static void OnNewNPPDocumentCreated();
+	static void OnNPPDocumentModified();
+};
+
 // One instance of config file manager. 
 extern ManageWakaTimeConfigFile gConfigFileManager;
-
-// Notepad++ relavent data. Both these datastructures are declared in the file
-// WakaTimeNPPPlugin.cpp.
-extern FuncItem funcItem[nbFunc];
-extern NppData nppData;
 
 #endif

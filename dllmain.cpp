@@ -30,7 +30,6 @@ extern "C" __declspec(dllexport) LRESULT messageProc(UINT Message, WPARAM wParam
 	return TRUE;
 }
 
-
 extern "C" __declspec(dllexport) BOOL isUnicode()
 {
 #ifdef UNICODE
