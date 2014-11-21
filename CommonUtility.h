@@ -6,10 +6,14 @@
 #define __WAKATIME_NPP_PLUGIN_UTILITIES
 #include "stdafx.h"
 #include "PluginInterface.h"
+#include <string>
 
 // The global plugin name. This is also the name in which the menu item
 // under PlugIns will be created by Notepad++.
 const TCHAR NPP_PLUGIN_NAME[] = TEXT("WakaTime");
+
+// The WakaTime config file name. 
+const TCHAR WAKATIME_CONFIG_NAME[] = TEXT(".wakatime.cfg");
 
 // The number of functions that this plugin will support. The code is taken
 // from "How to build a Notepad++ plugin in 10 mins" resource.
@@ -44,6 +48,21 @@ public:
 	}
 };
 
+class ManageWakaTimeConfigFile
+{
+private:
+	const std::wstring SECTION = L"settings";
+	const std::wstring API_KEY = L"api_key";
+	std::wstring m_FileName;
+public:
+	bool ReadWakaTimeConfigFile();
+	std::wstring GetAPIKeyFromConfigFile();
+	bool UpdateWakaTimeAPIKey(std::wstring key);
+	void CreateWakaTimeConfigFile(std::wstring key);
+};
+
+// One instance of config file manager. 
+extern ManageWakaTimeConfigFile gConfigFileManager;
 
 // Notepad++ relavent data. Both these datastructures are declared in the file
 // WakaTimeNPPPlugin.cpp.

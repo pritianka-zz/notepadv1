@@ -4,8 +4,10 @@
 #include <Windows.h>
 #include <CommCtrl.h>
 #include <tchar.h>
+
 #include "resource.h"
 #include "INIReader.h"
+#include "CommonUtility.h"
 
 #pragma comment(linker, \
   "\"/manifestdependency:type='Win32' "\
@@ -24,10 +26,9 @@ INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_INITDIALOG:
 	{
 		HWND hEdit = GetDlgItem(hDlg, IDC_WAKATIME_KEY);
-		// Read the wakatime.cfg file under users home directory if it exists.
-		// And show the current API Key when this dialog comes up.
-		// SetDlgItemTextW(hDlg, IDC_WAKATIME_KEY, 
-		//			reader.GetKeyValuePairsUnderASection(L"settings")[L"api_key"].c_str());
+		gConfigFileManager.ReadWakaTimeConfigFile();
+		SetDlgItemTextW(hDlg, IDC_WAKATIME_KEY,
+			gConfigFileManager.GetAPIKeyFromConfigFile().c_str());
 		SetFocus(hEdit);
 		return FALSE;
 	}
@@ -40,8 +41,15 @@ INT_PTR CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			SendMessage(hDlg, WM_CLOSE, 0, 0);
 			return TRUE;
 		case IDOK:
+		{
 			// Write user provided Key to the config file with full trust.
+			HWND hEdit = GetDlgItem(hDlg, IDC_WAKATIME_KEY);
+			WCHAR key[MAX_PATH];
+			GetDlgItemTextW(hDlg, IDC_WAKATIME_KEY, key, MAX_PATH);
+			gConfigFileManager.UpdateWakaTimeAPIKey(key);
+			DestroyWindow(hDlg);
 			return TRUE;
+		}
 		case IDC_WAKATIME_KEY:
 			if (HIWORD(wParam) == EN_CHANGE)
 			{
