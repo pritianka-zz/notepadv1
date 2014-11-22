@@ -14,6 +14,27 @@ extern "C" __declspec(dllexport) const TCHAR * getName()
 
 extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 {
+	if (nppData._nppHandle != notifyCode->nmhdr.hwndFrom)
+	{
+		// These are the editor modificaitons. Check to see if we need to
+		// tell WakaTime backend about this event.
+		switch (notifyCode->nmhdr.code)
+		{
+		case SCN_MODIFIED:
+		case SCN_CHARADDED:
+		case SCN_UPDATEUI:
+		{
+			if (EditRecordTimer::HasEnoughTimeElapsedToRecordEdit())
+			{
+				CommonUtility::OnNPPDocumentModified();
+				EditRecordTimer::UpdateTimeStampToBringToCurrent();
+			}
+		}
+		default:
+			return;
+		}
+		return;
+	}
 	switch (notifyCode->nmhdr.code)
 	{
 	case NPPN_SHUTDOWN:
@@ -41,14 +62,6 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 	}
 	default:
 	{
-		if (notifyCode->modificationType == SCN_MODIFIED && 
-			EditRecordTimer::HasEnoughTimeElapsedToRecordEdit() &&
-			(notifyCode->linesAdded > 0 || notifyCode->updated == SCN_UPDATEUI))
-		{
-			CommonUtility::OnNPPDocumentModified();
-			EditRecordTimer::UpdateTimeStampToBringToCurrent();
-		}
-
 		return;
 	}
 	}
