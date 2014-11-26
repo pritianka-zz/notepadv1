@@ -44,7 +44,7 @@ public:
 		// memory as a long long and reinterpreting it as long long.
 		long long delta = *(reinterpret_cast<long long*>(&thisInstant)) - 
 							*(reinterpret_cast<long long*>(&lastUpdatedTimeStamp));
-		return (delta > SPAN);
+		return (delta / 1000 > SPAN);
 	}
 
 	static void UpdateTimeStampToBringToCurrent()
@@ -73,9 +73,11 @@ private:
 	static const std::wstring pythoncmd;
 public:
 	static std::wstring GetCurrentNPPDocument();
+	static std::wstring GetNPPConfigDirectory();
 	static void OnCurrentNPPDocumentSaved();
 	static void OnNewNPPDocumentCreated();
 	static void OnNPPDocumentModified();
+	static std::wstring GetPythonPath();
 };
 
 // One instance of config file manager. 
