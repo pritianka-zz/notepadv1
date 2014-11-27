@@ -78,6 +78,7 @@ public:
 	static void OnNewNPPDocumentCreated();
 	static void OnNPPDocumentModified();
 	static std::wstring GetPythonPath();
+	static std::wstring GetCommandPrefix();
 };
 
 // One instance of config file manager. 

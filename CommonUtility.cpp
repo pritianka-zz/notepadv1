@@ -111,7 +111,8 @@ std::wstring CommonUtility::GetPythonPath()
 	ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
 	siStartInfo.cb = sizeof(STARTUPINFO);
 	siStartInfo.hStdOutput = hChildStd_OUT_Wr;
-	siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+	siStartInfo.dwFlags |= (STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW);
+	siStartInfo.wShowWindow = SW_HIDE;
 
 	CreateProcess(NULL,
 		const_cast<wchar_t*>(python.c_str()),
@@ -151,15 +152,55 @@ std::wstring CommonUtility::GetPythonPath()
 	return canonical.str();
 }
 
+std::wstring CommonUtility::GetCommandPrefix()
+{
+	static std::wstring commandprefix;
+	if (!commandprefix.empty())
+		return commandprefix;
+	std::wstring pythonpath = GetPythonPath();
+	std::wstring filepath = GetCurrentNPPDocument();
+	std::wstring configpath = GetNPPConfigDirectory() + L"\\wakatime\\";
+	std::wstring wakatimecmd = L"wakatime-cli.py";
+	std::wstring pluginver = L" --plugin \"notepadpp notepadpp-wakatime/1.0.0\" ";
+	commandprefix = L" " + configpath + L"\\" + wakatimecmd + pluginver;
+	return commandprefix;
+}
+
 void CommonUtility::OnCurrentNPPDocumentSaved()
 {
 	// Tell the WakaTime backend that a document has been saved in Notepad++ .
+	std::wstring pythonpath = GetPythonPath();
+	std::wstring filepath = GetCurrentNPPDocument();
+	/*
+	std::wstring configpath = GetNPPConfigDirectory() + L"\\wakatime\\";
+	std::wstring wakatimecmd = L"wakatime-cli.py";
+	std::wstring pluginver = L" --plugin \"notepadpp notepadpp-wakatime/1.0.0\" ";*/
+	std::wstring fileinvoke = L" --file ";
+	std::wstring command = GetCommandPrefix() + fileinvoke + filepath + L" --write";
 
+	PROCESS_INFORMATION piProcInfo;
+	STARTUPINFO siStartInfo;
+
+	ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+	ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
+	siStartInfo.cb = sizeof(STARTUPINFO);
+	siStartInfo.dwFlags |= STARTF_USESHOWWINDOW;
+	siStartInfo.wShowWindow = SW_HIDE;
+	LPTSTR commanddup = _wcsdup(command.c_str());
+	if (CreateProcess(pythonpath.c_str(), commanddup, NULL,
+		NULL, true, CREATE_NO_WINDOW, NULL, NULL, &siStartInfo, &piProcInfo))
+	{
+		CloseHandle(piProcInfo.hProcess);
+		CloseHandle(piProcInfo.hThread);
+	}
+	delete commanddup;
 }
 
 void CommonUtility::OnNewNPPDocumentCreated()
 {
 	// Tell the WakaTime backend that a document has been created in Notepad++.
+	// Not sure if there should be a new verb for this action.
+	CommonUtility::OnNPPDocumentModified();
 }
 
 void CommonUtility::OnNPPDocumentModified()
@@ -167,11 +208,12 @@ void CommonUtility::OnNPPDocumentModified()
 	// Tell the WakaTime backend that a document has been modified in Notepad++.
 	std::wstring pythonpath = GetPythonPath();
 	std::wstring filepath = GetCurrentNPPDocument();
+	/*
 	std::wstring configpath = GetNPPConfigDirectory() + L"\\wakatime\\";
 	std::wstring wakatimecmd = L"wakatime-cli.py";
-	std::wstring pluginver = L" --plugin \"notepadpp notepadpp-wakatime/1.0.0\" ";
-	std::wstring fileinvoke = wakatimecmd + pluginver + L" --file ";
-	std::wstring command = L" " + configpath + L"\\" + fileinvoke + filepath;
+	std::wstring pluginver = L" --plugin \"notepadpp notepadpp-wakatime/1.0.0\" ";*/
+	std::wstring fileinvoke =  L" --file ";
+	std::wstring command = GetCommandPrefix() + fileinvoke + filepath;
 
 	PROCESS_INFORMATION piProcInfo;
 	STARTUPINFO siStartInfo;
