@@ -95,6 +95,7 @@ void pluginCleanUp()
 void WakaTimeNPPPlugin::commandMenuInit()
 {
 	WakaTimeNPPPlugin::setCommand(0, TEXT("WakaTime API Key"), WakaTimeNPPPlugin::showWakaTimeAPIDlg, NULL, false);
+	WakaTimeNPPPlugin::setCommand(1, TEXT("About"), WakaTimeNPPPlugin::showWakaTimeAbtDlg, NULL, false);
 }
 
 // Here you can do the clean up (especially for the shortcut)
@@ -125,4 +126,9 @@ bool WakaTimeNPPPlugin::setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD 
 void WakaTimeNPPPlugin::showWakaTimeAPIDlg()
 {
 	ShowWakaTimeAPIKeyDialog();
+}
+
+void WakaTimeNPPPlugin::showWakaTimeAbtDlg()
+{
+	ShowWakaTimeAbtDialog();
 }

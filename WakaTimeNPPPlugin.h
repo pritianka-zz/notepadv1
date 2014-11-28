@@ -43,6 +43,8 @@ public:
 	//
 	static void showWakaTimeAPIDlg();
 
+	static void showWakaTimeAbtDlg();
+
 };
 
 #endif

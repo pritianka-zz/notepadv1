@@ -17,7 +17,7 @@ const TCHAR WAKATIME_CONFIG_NAME[] = TEXT(".wakatime.cfg");
 
 // The number of functions that this plugin will support. The code is taken
 // from "How to build a Notepad++ plugin in 10 mins" resource.
-const int nbFunc = 1;
+const int nbFunc = 2;
 
 // The instance of Notepad++ for which the dll is loaded. This is declared
 // extern here so that whoever includes this file gets this variable. But 
