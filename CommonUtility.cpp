@@ -12,6 +12,7 @@ FILETIME EditRecordTimer::lastUpdatedTimeStamp = (GetSystemTimeAsFileTime(&local
 ManageWakaTimeConfigFile gConfigFileManager;
 static const std::wstring pythoncmd = L"python.exe";
 
+#include <Shlwapi.h>
 bool ManageWakaTimeConfigFile::ReadWakaTimeConfigFile()
 {
 	// Read the wakatime.cfg file under users home directory if it exists.
@@ -20,8 +21,11 @@ bool ManageWakaTimeConfigFile::ReadWakaTimeConfigFile()
 	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Profile, SHGFP_TYPE_CURRENT, 0, &path)))
 	{
 		WCHAR fullPath[MAX_PATH];
-		if (SUCCEEDED(PathCchCombine(fullPath, MAX_PATH, path, WAKATIME_CONFIG_NAME)))
+#pragma  warning(disable : 4995)
+		// I know PathCombine is insecure - but its alternate 
+		if (SUCCEEDED(PathCombine(fullPath, path, WAKATIME_CONFIG_NAME)))
 		{
+#pragma warning(default : 4995)
 			m_FileName = fullPath;
 			status = true;
 		}
