@@ -3,9 +3,11 @@
 
 #include "stdafx.h"
 #include "WakaTimeNPPPlugin.h"
+#define _CRT_SECURE_NO_WARNINGS
 
 FuncItem funcItem[nbFunc];
 NppData nppData;
+
 
 extern "C" __declspec(dllexport) const TCHAR * getName()
 {
@@ -71,6 +73,7 @@ extern "C" __declspec(dllexport) void setInfo(NppData notpadPlusData)
 {
 	nppData = notpadPlusData;
 	WakaTimeNPPPlugin::commandMenuInit();
+	WakaTimeNPPPlugin::pluginInit(nppData._nppHandle);
 }
 
 extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
@@ -79,14 +82,54 @@ extern "C" __declspec(dllexport) FuncItem * getFuncsArray(int *nbF)
 	return funcItem;
 }
 
+size_t WriteDownloadedZip(void *ptr, size_t size, size_t nmemb, FILE *stream) 
+{
+	return fwrite(ptr, size, nmemb, stream);
+}
+
+#include <curl/curl.h>
 // Initialize your plugin data here
 // It will be called while plugin loading   
-void pluginInit(HANDLE hModule)
+void WakaTimeNPPPlugin::pluginInit(HANDLE hModule)
 {
+	/*
+	MessageBox(NULL, CommonUtility::IsPythonAvailableInPath() ? L"Python found" : L"Python not found",
+		L"Message", MB_OK);
+	*/
+	if (!CommonUtility::IsWakaTimeModuleAvailable())
+	{
+		CURL *curl = curl_easy_init();
+		if (NULL == curl)
+			return;
+
+		std::wstring configPath = CommonUtility::GetNPPConfigDirectory() + L"\\wakatime";
+		// May fail if the directory already exists. Just what we want.
+		CreateDirectory(configPath.c_str(), NULL);
+		std::wstring wakatimeZipFile = configPath + L"\\master.zip";
+
+		FILE* fp = _wfopen(wakatimeZipFile.c_str(), L"wb");
+
+		if (NULL == fp)
+			return;
+
+		curl_easy_setopt(curl, CURLOPT_URL, "https://github.com/wakatime//wakatime//archive//master.zip");
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteDownloadedZip);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+		CURLcode res = curl_easy_perform(curl);
+		if (CURLE_OK == res)
+		{
+			// Unzip the file for use.
+		}
+
+		fclose(fp);
+		curl_easy_cleanup(curl);
+	}
 }
 
 // Here you can do the clean up, save the parameters (if any) for the next session
-void pluginCleanUp()
+void WakaTimeNPPPlugin::pluginCleanUp()
 {
 }
 

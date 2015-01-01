@@ -82,6 +82,44 @@ std::wstring CommonUtility::GetNPPConfigDirectory()
 #include <fstream>
 #include <locale>
 #include <codecvt>
+
+bool CommonUtility::IsWakaTimeModuleAvailable()
+{
+	std::wstring wakatimeCliPath = CommonUtility::GetNPPConfigDirectory() + L"\\wakatime\\wakatime-cli.py";
+	return (INVALID_FILE_ATTRIBUTES != GetFileAttributes(wakatimeCliPath.c_str()));
+}
+
+// This function uses the quiet mode of where.exe to find whether python
+// is available in the path. Returns true if python was found and false otherwise.
+bool CommonUtility::IsPythonAvailableInPath()
+{
+	PROCESS_INFORMATION piProcInfo;
+	TCHAR systemPath[MAX_PATH];
+	GetSystemDirectory(systemPath, MAX_PATH);
+	const TCHAR pythonQuery[] = L"\\where.exe /Q python.exe";
+	std::wstring python = std::wstring(systemPath) + pythonQuery;
+	STARTUPINFO siStartInfo;
+	bool bSuccess = FALSE;
+
+	ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+	ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
+	siStartInfo.cb = sizeof(STARTUPINFO);
+	siStartInfo.dwFlags |= (STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW);
+	siStartInfo.wShowWindow = SW_HIDE;
+
+	CreateProcess(NULL,
+		const_cast<wchar_t*>(python.c_str()),
+		NULL, NULL, TRUE, 0, NULL, NULL,
+		&siStartInfo, &piProcInfo);
+
+	WaitForSingleObject(piProcInfo.hProcess, INFINITE);
+	int result = -1;
+	GetExitCodeProcess(piProcInfo.hProcess, (LPDWORD)&result);
+	CloseHandle(piProcInfo.hProcess);
+	CloseHandle(piProcInfo.hThread);
+	return result == 0;
+}
+
 std::wstring CommonUtility::GetPythonPath()
 {
 	// This function does four things(!) : 1) Executes which.exe python.exe

@@ -79,6 +79,8 @@ public:
 	static void OnNPPDocumentModified();
 	static std::wstring GetPythonPath();
 	static std::wstring GetCommandPrefix();
+	static bool IsPythonAvailableInPath();
+	static bool IsWakaTimeModuleAvailable();
 };
 
 // One instance of config file manager. 
