@@ -85,7 +85,8 @@ std::wstring CommonUtility::GetNPPConfigDirectory()
 
 bool CommonUtility::IsWakaTimeModuleAvailable()
 {
-	std::wstring wakatimeCliPath = CommonUtility::GetNPPConfigDirectory() + L"\\wakatime\\wakatime-cli.py";
+	std::wstring wakatimeCliPath = CommonUtility::GetNPPConfigDirectory() + 
+									L"\\wakatime\\wakatime-master\\wakatime-cli.py";
 	return (INVALID_FILE_ATTRIBUTES != GetFileAttributes(wakatimeCliPath.c_str()));
 }
 
@@ -201,7 +202,7 @@ std::wstring CommonUtility::GetCommandPrefix()
 		return commandprefix;
 	std::wstring pythonpath = GetPythonPath();
 	std::wstring filepath = GetCurrentNPPDocument();
-	std::wstring configpath = GetNPPConfigDirectory() + L"\\wakatime\\";
+	std::wstring configpath = GetNPPConfigDirectory() + L"\\wakatime\\wakatime-master\\";
 	std::wstring wakatimecmd = L"wakatime-cli.py";
 	std::wstring pluginver = L" --plugin \"notepadpp notepadpp-wakatime/1.0.0\" ";
 	commandprefix = L" " + configpath + L"\\" + wakatimecmd + pluginver;
@@ -213,10 +214,6 @@ void CommonUtility::OnCurrentNPPDocumentSaved()
 	// Tell the WakaTime backend that a document has been saved in Notepad++ .
 	std::wstring pythonpath = GetPythonPath();
 	std::wstring filepath = GetCurrentNPPDocument();
-	/*
-	std::wstring configpath = GetNPPConfigDirectory() + L"\\wakatime\\";
-	std::wstring wakatimecmd = L"wakatime-cli.py";
-	std::wstring pluginver = L" --plugin \"notepadpp notepadpp-wakatime/1.0.0\" ";*/
 	std::wstring fileinvoke = L" --file ";
 	std::wstring command = GetCommandPrefix() + fileinvoke + filepath + L" --write";
 
@@ -250,10 +247,6 @@ void CommonUtility::OnNPPDocumentModified()
 	// Tell the WakaTime backend that a document has been modified in Notepad++.
 	std::wstring pythonpath = GetPythonPath();
 	std::wstring filepath = GetCurrentNPPDocument();
-	/*
-	std::wstring configpath = GetNPPConfigDirectory() + L"\\wakatime\\";
-	std::wstring wakatimecmd = L"wakatime-cli.py";
-	std::wstring pluginver = L" --plugin \"notepadpp notepadpp-wakatime/1.0.0\" ";*/
 	std::wstring fileinvoke =  L" --file ";
 	std::wstring command = GetCommandPrefix() + fileinvoke + filepath;
 

@@ -88,14 +88,11 @@ size_t WriteDownloadedZip(void *ptr, size_t size, size_t nmemb, FILE *stream)
 }
 
 #include <curl/curl.h>
+#include "unzip.h"
 // Initialize your plugin data here
 // It will be called while plugin loading   
 void WakaTimeNPPPlugin::pluginInit(HANDLE hModule)
 {
-	/*
-	MessageBox(NULL, CommonUtility::IsPythonAvailableInPath() ? L"Python found" : L"Python not found",
-		L"Message", MB_OK);
-	*/
 	if (!CommonUtility::IsWakaTimeModuleAvailable())
 	{
 		CURL *curl = curl_easy_init();
@@ -118,12 +115,23 @@ void WakaTimeNPPPlugin::pluginInit(HANDLE hModule)
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteDownloadedZip);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 		CURLcode res = curl_easy_perform(curl);
+		fclose(fp);
 		if (CURLE_OK == res)
 		{
 			// Unzip the file for use.
+			HZIP hz = OpenZip(wakatimeZipFile.c_str(), 0);
+			SetUnzipBaseDir(hz, configPath.c_str());
+			ZIPENTRY ze; 
+			GetZipItem(hz, -1, &ze); 
+			int numitems = ze.index;
+			for (int zi = 0; zi<numitems; zi++)
+			{
+				ZIPENTRY ze; GetZipItem(hz, zi, &ze); // fetch individual details
+				UnzipItem(hz, zi, ze.name);         // e.g. the item's name.
+			}
+			CloseZip(hz);
 		}
-
-		fclose(fp);
+		
 		curl_easy_cleanup(curl);
 	}
 }
