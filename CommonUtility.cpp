@@ -5,6 +5,7 @@
 #include <Shlobj.h>
 #include <Pathcch.h>
 #include <sstream>
+#include <Shlwapi.h>
 
 // Mandatory initialization of static class variable outside the header file.
 static FILETIME local;
@@ -12,21 +13,29 @@ FILETIME EditRecordTimer::lastUpdatedTimeStamp = (GetSystemTimeAsFileTime(&local
 ManageWakaTimeConfigFile gConfigFileManager;
 static const std::wstring pythoncmd = L"python.exe";
 
-#include <Shlwapi.h>
-bool ManageWakaTimeConfigFile::ReadWakaTimeConfigFile()
+ManageWakaTimeConfigFile::ManageWakaTimeConfigFile()
 {
-	// Read the wakatime.cfg file under users home directory if it exists.
+	m_FileName = L"";
+}
+
+bool ManageWakaTimeConfigFile::DoesWakaTimeConfigFileExist()
+{
 	WCHAR* path;
 	bool status = false;
 	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Profile, SHGFP_TYPE_CURRENT, 0, &path)))
 	{
 		WCHAR fullPath[MAX_PATH];
 #pragma  warning(disable : 4995)
-		// I know PathCombine is insecure - but its alternate 
+		// I know PathCombine is insecure - but its alternate does not work 
+		// for windows 7. 
 		if (SUCCEEDED(PathCombine(fullPath, path, WAKATIME_CONFIG_NAME)))
 		{
-#pragma warning(default : 4995)
 			m_FileName = fullPath;
+		}
+#pragma warning(default : 4995)
+
+		if	(INVALID_FILE_ATTRIBUTES != GetFileAttributes(fullPath))
+		{
 			status = true;
 		}
 
@@ -34,6 +43,19 @@ bool ManageWakaTimeConfigFile::ReadWakaTimeConfigFile()
 	}
 
 	return status;
+}
+
+
+bool ManageWakaTimeConfigFile::ReadWakaTimeConfigFile()
+{
+	// Read the wakatime.cfg file under users home directory if it exists.
+	// Else create the config file 
+	if (!DoesWakaTimeConfigFileExist())
+	{
+		CreateWakaTimeConfigFile(L"");
+	}
+
+	return true;
 }
 
 std::wstring ManageWakaTimeConfigFile::GetAPIKeyFromConfigFile()
@@ -56,8 +78,13 @@ bool ManageWakaTimeConfigFile::UpdateWakaTimeAPIKey(std::wstring key)
 
 void ManageWakaTimeConfigFile::CreateWakaTimeConfigFile(std::wstring key)
 {
-	if (m_FileName.empty())
-		return;
+	if (!DoesWakaTimeConfigFileExist())
+	{
+		HANDLE hFileHandle =  CreateFile(m_FileName.c_str(), GENERIC_READ | GENERIC_WRITE,
+			FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		CloseHandle(hFileHandle);
+	}
+
 	INIReader reader(m_FileName);
 	reader.CreateSectionAndAddKeyValue(SECTION, API_KEY, key);
 	reader.WriteIniFile(m_FileName);

@@ -97,7 +97,10 @@ std::map<std::wstring, std::wstring> INIReader::GetKeyValuePairsUnderASection(st
 
 void INIReader::WriteIniFile(std::wstring filename)
 {
-	std::wfstream inifile(filename.empty() ? m_Filename : filename, std::ios_base::out);
+	std::wofstream inifile(filename.empty() ? m_Filename : filename);
+	if (inifile.fail())
+		return;
+
 	int CountOfSections = GetCountOfSections();
 	for (int i = 0; i < CountOfSections; ++i)
 	{
@@ -133,6 +136,7 @@ void INIReader::CreateSectionAndAddKeyValue(std::wstring section, std::wstring k
 	std::map<std::wstring, std::wstring> temp;
 	temp.insert(std::make_pair(key, value));
 	m_KVPairsUnderASection[section] = temp;
+	m_Sections.push_back(section);
 }
 
 
