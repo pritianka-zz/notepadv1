@@ -9,6 +9,7 @@
 FuncItem funcItem[nbFunc];
 NppData nppData;
 
+INITIALIZE_EASYLOGGINGPP
 
 extern "C" __declspec(dllexport) const TCHAR * getName()
 {

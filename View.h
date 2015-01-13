@@ -8,6 +8,7 @@
 #include "resource.h"
 #include "INIReader.h"
 #include "CommonUtility.h"
+#include "logger\src\easylogging++.h"
 
 #pragma comment(linker, \
   "\"/manifestdependency:type='Win32' "\
@@ -114,6 +115,7 @@ int ShowWakaTimeAPIKeyDialog()
 		{
 			::MessageBox(NULL, TEXT("WakaTime API Key dialog could not be created!"), 
 				TEXT("WakaTime Notepad++ Plugin"), MB_ICONEXCLAMATION);
+			LOG(ERROR) << "WakaTime API Key dialog could not be created!";
 			return -1;
 		}
 
@@ -143,6 +145,7 @@ int ShowWakaTimeAPIKeyDialog()
 		// has failed. Rather fail gracefully.
 		::MessageBox(NULL, TEXT("WakaTime API Key dialog could not be created!"), 
 			TEXT("WakaTime Notepad++ Plugin"), MB_ICONEXCLAMATION);
+		LOG(ERROR) << "Unknown error in ShowWakaTimeAPIKeyDialog function!";
 		return -1;
 	}
 }
@@ -176,6 +179,7 @@ int ShowWakaTimeAbtDialog()
 		{
 			::MessageBox(NULL, TEXT("WakaTime about dialog could not be created!"),
 				TEXT("WakaTime Notepad++ Plugin"), MB_ICONEXCLAMATION);
+			LOG(ERROR) << "WakaTime About Dialog could not be created!";
 			return -1;
 		}
 		
@@ -206,6 +210,7 @@ int ShowWakaTimeAbtDialog()
 		// has failed. Rather fail gracefully.
 		::MessageBox(NULL, TEXT("WakaTime about dialog could not be created!"),
 			TEXT("WakaTime Notepad++ Plugin"), MB_ICONEXCLAMATION);
+		LOG(ERROR) << "Unknown error in ShowWakaTimeAbtDialog function!";
 		return -1;
 	}
 }
