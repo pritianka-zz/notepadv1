@@ -56,8 +56,8 @@ public:
 class ManageWakaTimeConfigFile
 {
 private:
-	const std::wstring SECTION = L"settings";
-	const std::wstring API_KEY = L"api_key";
+	const std::wstring SECTION;//(L"settings");
+	const std::wstring API_KEY;//(L"api_key");
 	std::wstring m_FileName;
 	bool DoesWakaTimeConfigFileExist();
 public:

@@ -3,7 +3,7 @@
 #include "INIReader.h"
 #include <Knownfolders.h>
 #include <Shlobj.h>
-#include <Pathcch.h>
+// #include <Pathcch.h>
 #include <sstream>
 #include <Shlwapi.h>
 
@@ -13,7 +13,7 @@ FILETIME EditRecordTimer::lastUpdatedTimeStamp = (GetSystemTimeAsFileTime(&local
 ManageWakaTimeConfigFile gConfigFileManager;
 static const std::wstring pythoncmd = L"python.exe";
 
-ManageWakaTimeConfigFile::ManageWakaTimeConfigFile()
+ManageWakaTimeConfigFile::ManageWakaTimeConfigFile() : SECTION(L"settings"), API_KEY(L"api_key")
 {
 	m_FileName = L"";
 }
